@@ -1,0 +1,367 @@
+
+Module 4: Phân tích cách đánh bại đối thủ mạnh nhất.
+
+Tuyệt lắm, tôi đồng ý với Giải pháp B (Toàn diện và Mạnh mẽ), Module 4 cũng chia thành nhiều cột, mỗi cột thể hiện 1 kết quả đánh giá.
+
+Ví dụ giao diện:
+Label: Tên kênh được đánh giá. Label: Đối thủ mạnh/ đối thủ chính/ đối thủ mới nổi.
+Cột 1: Tần suất đăng bài: High / Normal / Low
+Cột 2: Tỷ lệ view trung bình: không quá đột phá/trung bình/viral ...
+Cột 3: Chiến lược: phủ rộng video/chất lượng video lan tỏa/hướng đi mới ...
+Cột 4: Core Content Format: 13m
+Cột 5: Community Engagement: Very High/High/Normal/Low
+Cột 6: Content Gap Analysis: danh sách "Chủ đề Vàng bị bỏ lỡ". Bạn nên lấy từ khóa đã phân tích tại module 2 để có dữ liệu đánh giá, vì từ khóa tại module 1 chưa phân tích và rất nhiều từ khóa 1-2 word sẽ không đảm bảo chất lượng của Content Gap Analysis
+Cột 7: Kế hoạch Hành động Đề xuất
+
+Nếu được, hãy thêm Label: Ghi chú tiêu chí đánh giá cho cột 1, ví dụ high = 1 bài/ngày, normal = 2bài/ngày, low = 1 bài/tuần. và label ghi chú tiêu chí cho Cột 5, ví dụ: Very high = tương tác mạnh, high = tương tác tốt, normal = ít tương tác, low = chí mạng.
+
+Ngoài ra, chúng ta có nên sử dụng sức mạnh của Gemini AI không? Gửi prompt các thông số tại module 4 để Gemini AI đánh giá điểm mạnh, điểm yếu, từ đó đưa ra kế hoạch hành động cụ thể để vượt mặt (Đặt tên kênh là ..., tags là ..., từ khóa SEO chính là ..., từ khóa phụ là ..., chiến lược là ..., Độ dài video từ ... minutes, mỗi tuần đăng ? bài,  ) và trả kết quả vào cột 8. Từ đó tôi đối chiếu cột 8 và cột 7 và lựa chọn hành động tốt nhất.
+
+Bạn hãy viết code hoàn chỉnh các yêu cầu trên nhé.
+
+=============================================================================
+------------Nang cấp các chỉ số-----------------------
+Cải tiến chỉ số Competition
+Chúng ta cần bổ sung thêm "chiều sâu" cho chỉ số này bằng cách không chỉ phân tích video, mà còn phải phân tích các kênh đang sở hữu các video đó.
+
+Giải pháp đề xuất:
+Bổ sung các yếu tố sau vào công thức tính Competition:
+
+Sức mạnh Kênh (Channel Authority): Đo lường "trọng lượng" trung bình của các kênh đang xếp hạng.
+
+Cách làm: Khi phân tích 50 video top đầu, thu thập ID của các kênh sở hữu chúng. Lấy thông tin chi tiết của các kênh này (đặc biệt là lượng subscriber).
+
+Chỉ số mới: Điểm Sức mạnh Kênh = log10(Lượng Subscriber Trung bình của các kênh trong top).
+
+Độ bão hòa Kênh (Channel Saturation): Đo lường mức độ thống trị của các kênh lớn.
+
+Cách làm: Trong 50 video top, đếm xem có bao nhiêu "kênh độc nhất" (unique channels).
+
+Chỉ số mới: Điểm Bão hòa Kênh = (Số video top / Số kênh độc nhất).
+
+Ví dụ 1: 50 video top đến từ 45 kênh khác nhau => Điểm = 50/45 = 1.11 (cạnh tranh thấp, nhiều cơ hội cho kênh mới).
+
+Ví dụ 2: 50 video top chỉ đến từ 10 kênh => Điểm = 50/10 = 5.0 (cạnh tranh cực cao, thị trường bị thống trị).
+
+Công thức Competition mới:
+
+Chúng ta sẽ kết hợp các yếu tố lại với các trọng số (weights) có thể điều chỉnh:
+
+New_Competition = (w1 * Old_Competition) + (w2 * Điểm Sức mạnh Kênh) + (w3 * Điểm Bão hòa Kênh)
+
+Trong đó:
+
+w1 (ví dụ: 0.4): Trọng số cho sức mạnh của nội dung (thuật toán cũ).
+
+w2 (ví dụ: 0.3): Trọng số cho sức mạnh của người tạo nội dung (subscriber).
+
+w3 (ví dụ: 0.3): Trọng số cho sự thống trị thị trường của các kênh.
+
+Cải tiến chỉ số Cơ hội SEO
+Chỉ số cơ hội hiện tại log10(Demand) / Competition là rất tốt về mặt logic. Chúng ta chỉ cần làm cho nó "nhạy" hơn với các yếu tố "thị trường ngách".
+
+Giải pháp đề xuất:
+
+Sử dụng chỉ số New_Competition đã được cải tiến ở trên.
+
+Thêm "Hệ số Ngách" (Niche Factor): Thưởng điểm cho các từ khóa dài, vì chúng thường có ý định tìm kiếm rõ ràng và tỷ lệ chuyển đổi cao hơn.
+
+Cách làm: Đếm số từ trong từ khóa.
+
+Chỉ số mới: Hệ số Ngách = 1 + (Số từ trong keyword - 2) * 0.1.
+
+Từ khóa 2 từ: Hệ số = 1.0 (chuẩn).
+
+Từ khóa 4 từ: Hệ số = 1 + (4-2)*0.1 = 1.2 (thưởng 20% điểm cơ hội).
+
+Từ khóa 5 từ: Hệ số = 1 + (5-2)*0.1 = 1.3 (thưởng 30% điểm cơ hội).
+
+Công thức Cơ hội SEO mới:
+
+New_Opportunity = (log10(Demand + 1) / New_Competition) * Hệ số Ngách
+
+============================================================================
+2. Chỉ số quan trọng nhất trong phần mềm là "Cơ hội SEO" nó quyết định từ khóa đó có cơ hội để SEO và được youtube đề xuất hiển thị hay không. Bạn hãy kiểm tra công thức SEO có phù hợp thực tế không?
+3. Các chỉ số khác: demand, supply, competition,
+
+Tôi đính kèm các mã nguồn phần mềm tìm kiếm, phân tích từ khóa. Bạn là kỹ sư Python 10 năm kinh nghiệm, bạn hãy đọc kỹ các nội dung bên trong và sử dụng các file mã nguồn đó bổ sung giao diện và chức năng Module 1:
+- Textbox nhập chủ đề cần tìm kiếm từ khóa.
+- Combobox quốc gia để tìm kiếm từ khóa trên Kênh Youtube tại quốc gia đó. Hãy hiển thị tên quốc gia khớp với tên quốc gia trên Youtube (Việt Nam, United State, Nhật Bản, Hàn Quốc, Tây Ban Nha, Bồ Đào Nha, Đức, Indonesia).
+- Combobox Radar gồm 3 chế độ tìm từ khóa (mô tả cụ thể bên dưới)
+- Nút Search để tìm từ khóa theo: Radar + quốc gia. Sau khi tìm kiếm & gợi ý, nút Search trở về trạng thái sẵn sàng cho tìm kiếm từ khóa mới. Khi nút search được bấm lần thứ 2, giao diện sẽ reset các kết quả tìm kiếm trước đó và bắt đầu cuộc tìm kiếm mới.
+- Nút Stop để ngừng tác vụ và chờ nút Search được bấm.
+- Grid hiển thị kết quả tìm kiếm: số thứ tự, danh sách từ khóa chính (mỗi từ khóa dài 2-4 word), từ khóa liên quan (mỗi từ khóa dài 2-4 word), longtail keyword (mỗi từ khóa dài 4-6 word).
+
+Mô tả 3 chế độ Radar:
+Chế độ 1: "Từ khóa Vua" (Tìm theo Mức độ Liên quan)
+Cách hoạt động: Phần mềm sẽ tìm 50-100 video có thứ hạng cao nhất và liên quan nhất (order='relevance') đến từ khóa gốc.
+
+Mục đích: Giúp trả lời câu hỏi: "Để trở thành một kênh lớn trong lĩnh vực này, tôi bắt buộc phải làm về những chủ đề cốt lõi nào?"
+
+Kết quả: Sẽ tìm ra các từ khóa chính, có lưu lượng tìm kiếm cao, là "xương sống" của chủ đề.
+
+Đánh đổi: các từ khóa này thường có mức độ cạnh tranh rất cao.
+
+Chế độ 2: "Từ khóa Mới nổi" (Tìm theo Ngày đăng)
+Cách hoạt động: Phần mềm sẽ tìm 50-100 video mới được đăng tải nhất (order='date') liên quan đến từ khóa gốc.
+
+Mục đích: Giúp trả lời câu hỏi: "'Cơn sốt' (trend) hiện tại trong chủ đề này là gì? Các kênh khác (cả lớn và nhỏ) đang nói về điều gì ngay lúc này?"
+
+Kết quả: Sẽ tìm ra các từ khóa theo xu hướng, các biến thể mới của chủ đề cũ, bắt kịp thị trường.
+
+Đánh đổi: Các từ khóa này có thể chỉ là xu hướng ngắn hạn.
+
+Chế độ 3: "Từ khóa Ngách" (Tìm kiếm Chuyên sâu)
+Cách hoạt động: Đây là chế độ nâng cao và thông minh nhất. Phần mềm sẽ tìm các video thỏa mãn các điều kiện khắt khe hơn, ví dụ:
+
+videoDuration='long' (chỉ tìm các video dài, ví dụ > 20 phút)
+
+videoDefinition='high' (chỉ tìm các video chất lượng cao)
+
+Logic: Lý thuyết đằng sau là: các nhà sáng tạo chỉ đầu tư công sức để làm video dài và chất lượng cao cho những chủ đề mà họ tin rằng có một lượng khán giả chuyên sâu, trung thành và thực sự đam mê. Đây không phải là các video "mỳ ăn liền".
+
+Mục đích: Giúp trả lời câu hỏi: "Đâu là những chủ đề 'ngách' có một nhóm khán giả rất tâm huyết mà các kênh lớn có thể đang bỏ qua?"
+
+Kết quả: Sẽ tìm ra các từ khóa rất cụ thể, chuyên sâu, có thể có lượt tìm kiếm không quá lớn nhưng lại có tỷ lệ chuyển đổi và giữ chân khán giả cực cao. Mức độ cạnh tranh của các từ khóa này thường thấp hơn đáng kể. 
+
+=============================================================
+---
+### **1. Phân tích các chỉ số đầu vào**
+
+Dựa trên hình ảnh anh cung cấp:
+* **Cầu (30d) = 2,421,899**: Đúng, đây là một con số "Demand" cao, cho thấy chủ đề này được khán giả quan tâm và tương tác nhiều.
+* **Competition = 5.79**: Theo thang đo của chúng ta, đây là mức **"Trung bình"** (trong khoảng 5.0 - 7.0), chứ không phải "Rất thấp". Nó cho thấy các video top đầu vẫn có chất lượng khá, thể hiện qua:
+    * **Lượt xem TB = 46,937**: Để một video được coi là thành công, nó cần đạt trung bình gần 50,000 lượt xem. Đây không phải là một con số nhỏ.
+    * **Tỷ lệ Tương tác = 2.64%**: Đây là một tỷ lệ tương tác khá tốt, cho thấy nội dung có sự kết nối với người xem.
+
+* **"Chỉ có 1 kênh SEO từ khóa này"**: Dữ liệu ở Module 3 cho thấy kênh "Minh Triết Tuổi Xế Chiều" đang thống trị các kết quả tìm kiếm hàng đầu cho từ khóa này. Điều này không có nghĩa là không có kênh khác, mà là kênh này đang làm quá tốt, chiếm hết các vị trí top, khiến việc cạnh tranh lại càng khó hơn vì anh phải đối đầu với một "ông lớn" duy nhất trong ngách này.
+
+---
+### **2. Tại sao "Cơ hội SEO" lại thấp (1.10)?**
+
+Đây là điểm mấu chốt và là sức mạnh của công thức tính mới mà chúng ta đã thống nhất.
+
+* **Công thức:** `Cơ hội SEO = log10(Chỉ số Cầu + 1) / Điểm Cạnh tranh`
+* **Thay số vào tính toán:**
+    1.  `log10(2,421,899 + 1)` = `log10(2,421,900)` ≈ **6.38**
+    2.  `Điểm Cạnh tranh` = **5.79**
+    3.  `Cơ hội SEO` = `6.38 / 5.79` ≈ **1.10**
+
+**Diễn giải:**
+Điểm quan trọng nhất nằm ở hàm `log10`. Khi chúng ta lấy logarit của một con số "Cầu" rất lớn (2.4 triệu), giá trị của nó bị **"nén" lại** một cách hợp lý chỉ còn khoảng **6.38**.
+
+Bây giờ, hãy so sánh hai con số đã được chuẩn hóa:
+* Đại diện cho Nhu cầu (Demand): **6.38**
+* Đại diện cho Cạnh tranh (Competition): **5.79**
+
+Tỷ lệ `6.38 / 5.79` rất gần với 1, cho thấy Nhu cầu và Cạnh tranh gần như **cân bằng**. Mức độ "khát" nội dung của khán giả chỉ nhỉnh hơn một chút so với độ khó để tạo ra một video cạnh tranh. Nó không phải là một "mỏ vàng" nơi nhu cầu vượt trội hoàn toàn so với cạnh tranh.
+
+---
+### **Kết luận cuối cùng**
+
+Phần mềm đã đưa ra đánh giá **"C (Thấp)"** là **hoàn toàn chính xác và hợp lý** với thực tế.
+
+Nó cho anh biết rằng: "Mặc dù chủ đề 'minh triết tuổi xế chiều' có nhiều người xem, nhưng các video hiện tại đã làm khá tốt (với gần 50k view/video và tương tác 2.64%). Mức độ khó để tạo ra một video tốt hơn chỉ thấp hơn một chút so với nhu cầu của thị trường. Do đó, đây không phải là một cơ hội thực sự lớn, mà là một thị trường đã có người khai thác hiệu quả. Rủi ro khi đầu tư vào đây là khá cao."
+
+Đây chính là giá trị cốt lõi của phần mềm: giúp anh nhìn thấu bản chất của các con số để đưa ra quyết định chiến lược, thay vì chỉ nhìn vào bề nổi "Demand cao" và lầm tưởng đó là một cơ hội dễ dàng.
+
+
+Ví dụ, dựa trên điểm "Cơ hội SEO" mới, chúng ta sẽ quy ước:
+Điểm > 5.0: 💎 (Mỏ vàng)
+3.5 - 5.0: 🟢 (Cơ hội tốt)
+2.0 - 3.5: 🟡 (Trung bình, cần cân nhắc)
+Dưới 2.0: 🔴 (Cơ hội thấp, rủi ro)
+
+
+Thang đo Competition (ước tính):
+Dưới 5.0: 🟢 Cạnh tranh Rất Thấp. Đây là thị trường ngách, ít người làm hoặc các video hiện tại có chất lượng rất thấp.
+5.0 - 7.0: 🟡 Cạnh tranh Trung bình. Có thể tham gia nhưng cần đầu tư nội dung tốt.
+7.0 - 8.5: 🟠 Cạnh tranh Cao. Rất nhiều video chất lượng, lượt xem cao. Cần nỗ lực và chiến lược vượt trội để có thể cạnh tranh.
+Trên 8.5: 🔴 Cạnh tranh Cực cao / Bão hòa
+
+Cách phân tích chỉ số cơ hội:
+Competition Score = 11.73: Theo thang đo của chúng ta (> 8.5 là Cực cao), con số này cho thấy mức độ cạnh tranh là khổng lồ. Tại sao? Vì Lượt xem Trung bình (230,793) của các video top đầu là quá lớn. Điều này có nghĩa là để chen chân vào top, một video mới phải có tiềm năng đạt hàng trăm ngàn lượt xem, một nhiệm vụ cực kỳ khó khăn.
+
+Cung = 50, Cầu = 11.8M: Cả hai chỉ số này đều ở mức rất cao. Nó khẳng định đây là một chủ đề đại chúng (mass-market), có rất nhiều nhà sáng tạo đang làm nội dung và cũng có một lượng khán giả khổng lồ đang xem nó.
+
+Cơ hội SEO = 0.60: Theo thang đo của chúng ta (< 2.0 là Rủi ro/Cơ hội thấp), con số này là cực kỳ thấp. Nó cho thấy dù nhu cầu của khán giả rất lớn, nhưng mức độ cạnh tranh về chất lượng và lượt xem của các đối thủ hiện tại còn lớn hơn một cách áp đảo. Tỷ lệ Cầu/Cạnh tranh gần như bằng 0.
+
+
+Trong phân tích ban đầu, bạn có nhắc đến "Mức độ cạnh tranh (Competition Score)" và "Chỉ số Cơ hội SEO (SEO Opportunity Score)". Phần mềm hiện tại hiển thị 2 chỉ số này ở đâu để đánh giá. Bạn hãy giải thích ý nghĩa mỗi con số, ví dụ: Competition Score = 50 thì sao, SEO Opportunity Score = 50 thì ý nghĩa gì?
+
+========================================
+Đề dành: - Cột 1 là tên kênh (Channel Name) (lấy lại tên kênh từ grid đang có sẵn).
+- Cột 2 là tổng số video của kênh (Total Video).
+- Cột 3 là lượt view video mới nhất (Total View Newest).
+- Cột 4 là ảnh thumbnail video mới nhất (cho phép tải hoặc xem) (Thumbnail Newest).
+- Cột 5 là thời lượng video mới nhất (Duration Newest).
+- Cột 6 thời gian đăng video mới nhất (Date Newest).
+=======
+Phân tích của bạn rất hợp lý. Tuy nhiên, chúng ta sẽ cần phân tích thêm các chức năng cần nâng cấp dưới đây, sau khi tôi "ĐỒng ý" mới viết mã:
+
+Cải tiến Module 2:
+1. Khi 1 từ khóa đang phân tích dở dang mà phần mềm tắt đi, khi mở lại phần mềm, từ khóa đó cũng được load lên giao diện nhưng ko có dữ liệu, và cũng không thể cập nhật dữ liệu mới. Vì vậy, Bạn nên bổ sung thêm nút "Phân tích lại" có chức năng phân tích lại các từ khóa hiện có trong ô textbox, và lưu trữ đè lên dữ liệu cũ của từ khóa đó.
+
+2. Biểu đồ không hiển thị bất kỳ thông tin nào, hãy xóa bỏ chức năng biểu đồ.
+
+3. Bổ sung thêm 2 Grid mới để hiển thị dữ liệu 1 ngày và 7 ngày gần nhất để xác định xu hướng sát hơn. Các Grid mới cũng có đầy đủ các cột hiển thị dữ liệu (Keyword, Demand Index, Supply Index, Average Views, HD Ratio, Competition, Seo Opportunity Score (SOS), Rating). Vì vậy bạn hãy cải tiến quy trình khi dùng Youtube Data API, phân tích dữ liệu và lần lượt upload vào Grid 1 ngày, Grid 7 ngày, Grid 30 ngày. 
+
+4. Các chữ và số đang quá nhỏ, hãy tăng gấp đôi size lên, hoặc viết hàm riêng để sửa 1 lần là thay đổi toàn bộ size chữ & số trên phần mềm.
+
+5. Nút "GO" hiện tại chỉ sử dụng được 1 lần, muốn tìm từ khóa tiếp theo sẽ phải tắt phần mềm và mở lại => bản thân nút "GO" cần tự refresh để tìm kiếm được nhiều lần. Mỗi lần bấm, phần mềm sẽ phân tích nhóm từ khóa mới trong ô Textbox và hiển thị vào các Grid thay thế cho nhóm từ khóa trước đó.
+
+Cải tiến Module 3:
+1. Cột Channel link cho phép copy hoặc bấm vào link để chuyển đến kênh đó.
+
+2. Cột Thumbnail cho phép tải ảnh hoặc xem ảnh.
+
+3. Bổ sung cột tổng số video của kênh "Total Video" sau cột Tổng đăng ký.
+
+4. Cột Ngày tạo kênh cho phép sắp xếp lại từ ngày gần nhất (Nếu được cho phép tất cả các cột có chức năng sắp xếp).
+
+5. Khi chọn từ khóa tại Module 2, dữ liệu 30 ngày của nhóm từ khóa cùng chủ đề đó được cập nhật tại Module 3.
+
+
+============
+
+Bạn thật tuyệt vời. Bây giờ, bạn hãy là 1 kỹ sư lập trình Python 20 năm kinh nghiệm, bạn hãy viết giúp tôi phần mềm trên với đầy đủ chức năng như bạn đã đề ra. Hãy tận dụng các tham số và bộ lọc mạnh mẽ mà bạn biết để tạo ra phần mềm hoàn hảo, mạnh mẽ. 
+
+
+=============
+Chỉ số Xu hướng Tương đối" (Relative Trend Index) là 1 ý tưởng xuất sắc, sẽ giúp tôi biết được xu hướng từ khóa để định hướng theo. Đó sẽ là 1 cột quan trọng bổ sung vào Grid 1. Ngoài ra, tôi được biết còn 1 cách để tính toán Search Volume đó là tổng hợp "Kết quả tìm kiếm video" + "tìm kênh" + "tìm playlist" dựa trên truy vấn. Cách nào thể hiện nhu cầu của người xem, bạn hãy xem có cách nào tính toán được con số này hoặc tương tự?
+
+Gemini trả lời:
+Chào anh Khôi,
+
+Tôi rất vui vì ý tưởng "Chỉ số Xu hướng Tương đối" (tôi sẽ gọi tắt là **Chỉ số Cung**) có ích cho anh. Nó phản ánh chính xác mức độ quan tâm của các nhà sáng tạo và là một tín hiệu sớm về một xu hướng.
+
+Câu hỏi của anh về việc đo lường "nhu cầu của người xem" là cực kỳ xác đáng và cho thấy tư duy phân tích sâu sắc. Anh đã đúng khi cho rằng chúng ta cần một chỉ số khác để đo lường phía "Cầu" của thị trường.
+
+Hãy cùng phân tích phương pháp anh đề xuất và sau đó tôi sẽ đưa ra một giải pháp tối ưu hơn.
+
+-----
+
+### **Phân tích phương pháp: Tổng hợp kết quả tìm kiếm**
+
+Phương pháp của anh đề xuất là tính tổng số kết quả trả về từ truy vấn `search.list` cho `video`, `channel`, và `playlist`.
+
+  * **Ưu điểm:** Rất dễ thực hiện về mặt kỹ thuật.
+  * **Nhược điểm & Tại sao nó không phản ánh "nhu cầu người xem":**
+      * Con số này (`pageInfo.totalResults` trong API response) thể hiện **tổng số lượng nội dung tồn tại** liên quan đến từ khóa đó trên toàn bộ YouTube.
+      * **Nó đo lường độ lớn của "nguồn cung" hoặc "thị trường", chứ không phải "nhu cầu".**
+      * **Ví dụ minh họa:** Hãy hình dung nó giống như việc vào một thư viện và đếm xem có bao nhiêu cuốn sách về chủ đề "lịch sử". Con số đó cho biết thư viện có nhiều sách về chủ đề đó (nguồn cung lớn), chứ không cho biết có bao nhiêu người đang *thực sự tìm đọc* chúng (nhu cầu). Một từ khóa cũ có thể có hàng triệu video (tổng kết quả tìm kiếm lớn) nhưng không ai tìm kiếm nó nữa.
+      * **Hạn chế kỹ thuật:** Con số `totalResults` mà API trả về chỉ là một con số **ước tính (approximate)** và không hoàn toàn chính xác.
+
+Vì vậy, cách này vẫn thiên về đo lường **Nguồn Cung**. Để đo **Nhu cầu**, chúng ta phải đo lường **hành vi của người xem**.
+
+-----
+
+### **Giải pháp Tối ưu: "Chỉ số Nhu cầu Người xem" (Viewer Demand Index) 📈**
+
+Để đo nhu cầu của người xem, chúng ta cần đo lường *hành vi* của họ. Hành vi quan trọng nhất trên YouTube là **xem, thích, và bình luận**. Một chủ đề có nhiều người xem, tương tác mạnh mẽ chính là chủ đề có nhu cầu cao.
+
+Đây là thuật toán để tính toán chỉ số này:
+
+#### **Thuật toán Tính toán "Chỉ số Nhu cầu Người xem"**
+
+1.  **Xác định Tham số:**
+
+      * `keyword`: Từ khóa cần phân tích.
+      * `timeframe`: Khoảng thời gian để xét (ví dụ: 90 ngày gần nhất để đo nhu cầu hiện tại).
+      * `limit`: Số lượng video hàng đầu để phân tích (ví dụ: 50 video hàng đầu).
+
+2.  **Bước 1: Tìm kiếm video liên quan và mới nhất**
+
+      * Sử dụng `search.list` với các tham số:
+          * `q=keyword`
+          * `part='snippet'`
+          * `type='video'`
+          * `order='viewCount'` (hoặc `relevance`) để lấy các video hiệu quả nhất.
+          * `publishedAfter=YYYY-MM-DDThh:mm:ssZ` (thời điểm 90 ngày trước).
+          * `maxResults=limit`
+      * Kết quả: Anh sẽ có danh sách ID của 50 video hàng đầu, liên quan nhất, được xuất bản trong 90 ngày qua.
+
+3.  **Bước 2: Lấy số liệu thống kê chi tiết**
+
+      * Với danh sách ID video thu được, gọi hàm `videos.list` với:
+          * `id=id_video_1,id_video_2,...`
+          * `part='statistics'`
+      * Kết quả: Anh sẽ có `viewCount`, `likeCount`, `commentCount` cho từng video.
+
+4.  **Bước 3: Tính toán Điểm Nhu cầu**
+
+      * Đây là công thức tổng hợp, trong đó chúng ta gán trọng số cho mỗi hành vi. Một bình luận thường thể hiện sự quan tâm sâu sắc hơn một lượt thích, và một lượt thích thể hiện sự quan tâm hơn một lượt xem thông thường.
+      * **Công thức:**
+        `Demand_Score = (w1 * Tổng Lượt Xem) + (w2 * Tổng Lượt Thích) + (w3 * Tổng Lượt Bình luận)`
+      * **Trong đó:**
+          * `Tổng Lượt Xem`: Sum(`viewCount`) của 50 video.
+          * `Tổng Lượt Thích`: Sum(`likeCount`) của 50 video.
+          * `Tổng Lượt Bình luận`: Sum(`commentCount`) của 50 video.
+          * `w1, w2, w3`: Là các trọng số. Gợi ý ban đầu:
+              * `w1 = 1` (mỗi lượt xem là 1 điểm)
+              * `w2 = 5` (một lượt thích "giá trị" bằng 5 lượt xem)
+              * `w3 = 10` (một bình luận "giá trị" bằng 10 lượt xem)
+
+Con số `Demand_Score` cuối cùng chính là **"Chỉ số Nhu cầu Người xem"**. Nó phản ánh trực tiếp mức độ mà khán giả đang tiêu thụ và tương tác với nội dung về từ khóa đó.
+
+-----
+
+### **Kết hợp 2 Chỉ số: Xây dựng Ma trận Chiến lược**
+
+Bây giờ, anh có trong tay 2 vũ khí cực kỳ mạnh mẽ:
+
+1.  **Chỉ số Cung (Relative Trend Index):** Đo lường sự quan tâm của **Nhà sáng tạo**.
+
+      * *Trả lời câu hỏi:* "Chủ đề này có đang được nhiều người làm video không?"
+      * *Tín hiệu:* Dấu hiệu sớm của một trend.
+
+2.  **Chỉ số Cầu (Viewer Demand Index):** Đo lường sự quan tâm của **Người xem**.
+
+      * *Trả lời câu hỏi:* "Chủ đề này có đang được nhiều người xem không?"
+      * *Tín hiệu:* Xác nhận một trend đã có khán giả và vững chắc.
+
+Khi anh đặt hai chỉ số này lên Grid 1, người dùng có thể ngay lập tức phân loại từ khóa vào 4 nhóm chiến lược:
+
+|                        | **Cầu Thấp** (Ít người xem)                             | **Cầu Cao** (Nhiều người xem)                             |
+| :--------------------- | :---------------------------------------------------- | :------------------------------------------------------ |
+| **Cung Thấp** (Ít video mới) | 📉 **Vùng đất mới (Rủi ro)** \<br\> Có thể là trend tương lai, hoặc là chủ đề không ai quan tâm. | 💎 **MỎ VÀNG (Cơ hội lớn)** \<br\> Ít người làm nhưng rất nhiều người xem. **Ưu tiên số 1\!** |
+| **Cung Cao** (Nhiều video mới) | ⚠️ **Bão hòa (Nguy hiểm)** \<br\> Nhiều người làm nhưng ít người xem. Trend sắp tàn. | 🔥 **Sao Vàng (Thị trường nóng)** \<br\> Nhiều người làm, nhiều người xem. Cạnh tranh cao.    |
+
+**Tư vấn:**
+
+Hãy thêm cả 2 cột **"Chỉ số Cung"** và **"Chỉ số Cầu"** vào Grid 1 của anh. Điều này sẽ biến phần mềm của anh từ một công cụ tìm kiếm từ khóa thành một **công cụ phân tích thị trường và hoạch định chiến lược nội dung** thực sự. Người dùng sẽ biết chính xác đâu là "mỏ vàng" để tập trung nguồn lực.
+
+================
+Tôi đã có Google API Key và dự án trên Google Cloud console. Bạn là Bussiness Analytic Python 20 năm kinh nghiệm. Nhiệm vụ của bạn là tư vấn cho tôi giải pháp để tạo ra một phần mềm hoàn hảo và mạnh mẽ (đầy đủ tham sô, bộ lọc) để tìm kiếm từ khoá, từ khoá mở rộng, long-tail keywords, phân tích đối thủ cạnh tranh, ...  Ý tưởng ban đầu của tôi như dưới đây, bạn hãy tư vấn giải pháp khai thác tối đa các dữ liệu từ YouTube Data API v3 lấy về để tạo ra phần mềm làm việc hiệu quả nhất, tối ưu nhất, chính xác nhất với những dữ liệu đó.
+
+INPUT: dữ liệu từ YouTube Data API v3.
+OUTPUT: 
+- Các Từ khoá chính của chủ đề mà các kênh youtube đang dùng: lọc từ tiêu đề video, mô tả, thẻ tags, ảnh thu nhỏ,...
+- Từ khoá mở rộng, long-tail keywords của từ khóa chính đó: lọc từ tiêu đề video, mô tả, thẻ tags, ảnh thu nhỏ,...
+- Biểu đồ tra cứu từ khóa trong 30 ngày gần nhất theo 2 lựa chọn: Lựa chọn 1 thể hiện tổng số lượt tra cứu từ khóa và lựa chọn 2 thể hiện tổng số lượt xem toàn bộ kênh theo từ khóa.
+- Mức độ cạnh tranh mỗi từ khóa: xét theo số lượng kênh đang sử dụng SEO từ khóa đó kết hợp ... (cần bạn tư vấn thuật toán để tính)
+- Phần mềm tự động lưu trữ toàn bộ dữ liệu về máy tính. Mỗi khi chạy phần mềm, phần mềm chỉ đọc dữ liệu đã lưu trữ. Khi bấm nút "Tải dữ liệu mới" thì phần mềm mới dùng đến YouTube Data API v3 để tải dữ liệu mới, lưu trữ/chép đè dữ liệu cũ và cập nhật lên giao diện.
+- Nếu tìm từ khóa chưa có dữ liệu trong máy thì phần mềm tự động dùng YouTube Data API v3 để tải dữ liệu mới của từ khóa đó, lưu trữ và cập nhật lên giao diện.
+- Danh sách 10 đối thủ cạnh tranh lớn nhất: link kênh, tên kênh, tiêu đề của kênh, từ khóa chính của kênh, lượt đăng ký, tổng lượt view kênh, ngày tạo kênh. Link video nổi bật của kênh: lượt view video, ảnh thumbnail, thời lượng video, độ phân giải (720, 1080, 2k).
+
+GIAO DIỆN PHẦN MỀM:
+- Combobox tài khoản google để lựa chọn Google API Key phục vụ tra cứu. Mỗi API Key nằm trong file Account\acc1\gemini_api.key, Account\acc2\gemini_api.key
+
+Module 1 - Tìm kiếm từ khóa:
+- Ô nhập tên chủ đề.
+- Combobox lựa chọn quốc gia tìm kiếm từ khóa: khi lựa chọn quốc gia, YouTube Data API v3 chỉ lọc dữ liệu kênh Youtube tại quốc gia đó, ngôn ngữ quốc gia đó. Quốc gia gồm: Mỹ, Việt Nam, Nhật, Hàn, Tây Ban Nha, Bồ Đào Nha, Đức, Indonesia.
+- Nút Search: tìm kiếm từ khóa theo chủ đề trong phạm vị quốc gia đã chọn (Tiêu chí tìm kiếm từ khóa cần bạn tư vấn).
+- Grid 1 hiển thị kết quả tìm kiếm khoảng 100 từ khóa: nhóm từ khoá chính bên trên, nhóm từ khoá mở rộng và long-tail bên dưới. Từ khóa được ưu tiên sắp xếp từ trên xuống dưới theo tiêu chí lượt tìm kiếm nhiều nhất. Grid 1 gồm có: cột 1 là danh sách từ khóa, cột 2 là số từ của từ khóa, cột 3 là số lượng Kênh Youtube đang SEO từ khóa đó.
+
+Module 2 - Phân tích từ khóa.
+- Bên trái màn hình: Combobox chọn dữ liệu hiển thị trên biểu đồ: tổng số lượt tra cứu từ khóa và tổng số lượt xem toàn bộ kênh theo từ khóa (hoặc tiêu chí khác bạn tư vấn thêm). 
+- Bên trái màn hình: Combobox sắp xếp thứ tự từ khóa theo lượt tìm kiếm, theo khả năng cạnh tranh, ... 
+- Bên trái màn hình: Ô Textbox nhập từ khóa cần tra cứu: chọn từ khóa trong Grid 1, copy và paste vào Textbox để chỉ tra cứu dữ liệu các từ khóa được chọn. Mỗi từ khóa nằm 1 dòng.
+- Nút "Go": lần lượt lấy từ khóa trong textbox để load dữ liệu từ máy tính, tải dữ liệu mới từ Youtube và phân tích.
+- Grid 2 hiển thị kết quả phân tích từ khóa, sắp xếp theo thứ tự từ khóa trong Ô Textbox. Grid 2 gồm có: cột 1 là biểu đồ 30 ngày gần nhất, cột 2 là search Volume, cột 3 là Mức độ cạnh tranh, cột 4 là số kênh đang SEO, cột 5 bạn hãy tư vấn thêm dữ liệu nào thể hiện mức độ khó/dễ SEO từ khóa. 
+- Kiểu hiển thị của biểu đồ: là đường nối các đỉnh của lượt tìm kiếm từ khóa, chiều cao từ 0-100 lượt tìm kiếm/ngày. Biểu đồ có khả năng phóng to khi click vào để nhìn cho rõ.
+
+Module 3 - Phân tích đối thủ.
+Sau khi nhấn nút "Go" tại Module 2, Grid 2 hiển thị kết quả "Phân tích từ khóa", đồng thời hiển thị "Phân tích đối thủ" tại Grid 3 - Module 3
+- Grid 3 hiển thị Danh sách các đối thủ cạnh tranh lớn nhất của các từ khóa đã phân tích tại Grid 2, sắp xếp theo lượt đăng ký nhiều nhất đến ít nhất: cột 1 là link kênh, cột 2 là tên kênh, cột 3 là tiêu đề của kênh, cột 4 là lượt đăng ký, cột 5 là tổng lượt view kênh, cột 6 là ngày tạo kênh. cột 7 là lượt view video nổi bật, cột 8 là ảnh thumbnail video nổi bật, cột 9 là thời lượng video nổi bật, cột 10 là độ phân giải (720, 1080, 2k) của video nổi bật, cột 11 là thời gian đăng video nổi bật.
+
