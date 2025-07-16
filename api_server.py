@@ -78,6 +78,10 @@ class AiSuggestion(BaseModel):
     analysisData: dict  # Accept as JSON string
     marketKeywords: list[str]
 
+@app.get("/")
+def healthcheck():
+    return {"status": "ok"}
+
 @app.post("/discoverKeywords")
 def discoverKeywords(request: DiscoverKeywords):
     
@@ -111,3 +115,4 @@ def aiSuggestion(request: AiSuggestion):
  
     result = GeminiManager.get_overtake_plan(request.analysisData.get('result'), request.marketKeywords)
     return {"result": result}
+
