@@ -80,7 +80,7 @@ class AiSuggestion(BaseModel):
 
 @app.get("/")
 def healthcheck():
-    return {"status": "ok"}
+    return {"status": "ok1"}
 
 @app.post("/discoverKeywords")
 def discoverKeywords(request: DiscoverKeywords):
